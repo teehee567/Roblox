@@ -113,7 +113,7 @@ Tab2:CreateToggle({
 
 local autoclickdebounce = false
 local autoclick = false
-Tab2:CreateToggle({
+local autoclicker = Tab2:CreateToggle({
 	Name = "Autoclick (keep off when using the farms)",
 	CurrentValue = false,
 	Flag = "Autoclick",
@@ -187,7 +187,111 @@ Tab2:CreateSection("Autofarm")
 -- ------------------------------ Area Selector ----------------------------- --
 
 
-Tab2:CreateParagraph({Title = "Auto Farm Patched", Content = "No Time to Work on it, will be back in 2 weeks"})
+Tab2:CreateParagraph({Title = "Shit autofarm because good one go patched(was made ages ago and rushed)", Content = "No Time to Work on anything new, will be back in 2 weeks"})
+
+local mobs = {}
+local mobtofarm
+
+
+local mobdropdown = Tab2:AddDropdown({
+	Name = "Mob List",
+	Default = "yes",
+	Options = mobs,
+	Callback = function(Value)
+		mobtofarm = Value
+	end
+})
+
+
+spawn(function() --i know, i know, open loop bad but i cant use .changed because its an upvalue
+    local currentarea
+    while wait(0.5) do
+        if services.CurrentArea ~= currentarea then
+            mobdropdown:Refresh({},true)
+            for _,mob in pairs(game.Workspace["__WORKSPACE"].Mobs[services.CurrentArea.Name]:GetChildren()) do
+                if not table.find(mobs,mob.Name) then
+                    table.insert(mobs,mob.name)
+                end
+            end
+            mobdropdown:Refresh(mobs,false)
+            currentarea = services.CurrentArea
+        end
+    end
+end)
+
+
+local autofarm = false
+Tab2:AddToggle({
+	Name = "Auto Farm Selected Mob",
+	Default = false,
+	Callback = function(Value)
+		autofarm = Value
+        if Value then
+            autofarm_func()
+        end
+	end
+})
+
+
+function gettarget()
+    local targetdistance = math.huge
+    local target
+    for _,mob in pairs(game.Workspace["__WORKSPACE"].Mobs[services.CurrentArea.Name]:GetChildren()) do
+        if mob:IsA("Model") and mob.Name == mobtofarm then
+            local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - mob.HumanoidRootPart.Position).magnitude
+            if distance < targetdistance and distance < 500 then
+                targetdistance = distance
+                target = mob
+            end
+        end
+    end
+    return target
+end
+
+function autofarm_func()
+    spawn(function()
+        while wait(0.1) and autofarm do
+            pcall(function()
+                local target = gettarget()
+                local hp = target.Settings.HP.Value
+                if hp > 0 then
+                    local oldhp
+                    local failsafe = 0
+                    local killfailsafe = false
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.HumanoidRootPart.CFrame + Vector3.new(0, 2, 0)
+                    spawn(function()
+                        while wait() do
+                            if failsafe > 3 then
+                                autoclicker:Set(true)
+                                if target.Settings.HP.Value > 0 then
+                                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.HumanoidRootPart.CFrame + Vector3.new(0, 2, 0)
+                                end
+                                failsafe = 0
+                            elseif killfailsafe then
+                                return
+                            end
+                        end
+                    end)
+                    while hp > 0 and autofarm do
+                        if autofarm then
+                            oldhp = target.Settings.HP.Value
+                            if hp == oldhp then
+                                failsafe += 1
+                            end
+                            hp = target.Settings.HP.Value
+                            if hp > 0 then
+                                game:GetService("ReplicatedStorage").Remotes.Client:FireServer({'AttackMob', target, nil, 'left Arm'})
+                                wait(0.5)
+                            end
+                        end
+                    end
+                    killfailsafe = true
+                    return
+                end
+            end)
+        end
+    end)
+end
 
 -- -------------------------------- Autofarm -------------------------------- --
 
@@ -1220,4 +1324,5 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 end)
 
 
-
+Rayfield:LoadConfiguration()
+--i know my codes ass, dont harass me
