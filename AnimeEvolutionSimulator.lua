@@ -193,13 +193,14 @@ local mobs = {}
 local mobtofarm
 
 
-local mobdropdown = Tab2:AddDropdown({
+local mobdropdown = Tab2:CreateDropdown({
 	Name = "Mob List",
-	Default = "yes",
 	Options = mobs,
-	Callback = function(Value)
-		mobtofarm = Value
-	end
+	CurrentOption = "",
+	Flag = "Star to open",
+	Callback = function(Option)
+        mobtofarm = Option
+	end,
 })
 
 
@@ -219,17 +220,17 @@ spawn(function() --i know, i know, open loop bad but i cant use .changed because
     end
 end)
 
-
-local autofarm = false
-Tab2:AddToggle({
+local autofarm
+Tab2:CreateToggle({
 	Name = "Auto Farm Selected Mob",
-	Default = false,
+	CurrentValue = false,
+	Flag = "Auto Farm Selected Mob",
 	Callback = function(Value)
 		autofarm = Value
         if Value then
             autofarm_func()
         end
-	end
+	end,
 })
 
 
@@ -281,7 +282,7 @@ function autofarm_func()
                             hp = target.Settings.HP.Value
                             if hp > 0 then
                                 game:GetService("ReplicatedStorage").Remotes.Client:FireServer({'AttackMob', target, nil, 'left Arm'})
-                                wait(0.5)
+                                wait(0.1)
                             end
                         end
                     end
