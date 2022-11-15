@@ -326,6 +326,7 @@ function gettarget2()
 end
 
 function autofarm_func2()
+    autoclicker:Set(false)
     spawn(function()
         while wait(0.1) and autofarm2 do
             pcall(function()
@@ -339,7 +340,6 @@ function autofarm_func2()
                     spawn(function()
                         while wait() do
                             if failsafe > 3 then
-                                autoclicker:Set(true)
                                 if target.Settings.HP.Value > 0 then
                                     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.HumanoidRootPart.CFrame + Vector3.new(0, 2, 0)
                                 end
@@ -358,7 +358,7 @@ function autofarm_func2()
                             hp = target.Settings.HP.Value
                             if hp > 0 then
                                 game:GetService("ReplicatedStorage").Remotes.Client:FireServer({'AttackMob', target, nil, 'left Arm'})
-                                wait()
+                                game:GetService("RunService").RenderStepped:Wait()
                             end
                         end
                     end
@@ -975,7 +975,16 @@ Tab8:CreateToggle({
 
 
 
+local OldNameCall = nil
+OldNameCall = hookmetamethod(game, "__namecall", function(Self, ...)
+    local NamecallMethod = getnamecallmethod()
 
+    if NamecallMethod == "Kick" then
+        return nil
+    end
+
+    return OldNameCall(Self, ...)
+end)
 
 local auras = require(game.ReplicatedStorage.Modules.Auras)
 local ranks = require(game.ReplicatedStorage.Modules.Ranks)
