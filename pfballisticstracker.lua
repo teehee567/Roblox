@@ -75,11 +75,11 @@ function main(v)
         --horzontal prediction i fucking cant with this shit????? the fuckign velocity i get from this shit aint linear it some weird shit
         local enemyvelocity = (enemy_position - last_pos) / step
         local bull_time = distance/bulletspeed
-        local horizontal_vector = enemyvelocity*bull_time
+        local horizontal_vector = enemyvelocity*bull_time --FUCK YOU
 
 
 
-        BillboardGui.StudsOffset = Vector3.new(0,(((196.2 ^ t) / 2) - (t * 2)),0)
+        BillboardGui.StudsOffset = Vector3.new(0,(((196.2 ^ t) / 2) - (t * 2)),0) --the math here is stolen because for some FUCKING reason basic projectile principle maths gives the wrong answer
 
         last_pos = enemy_position
     end)
