@@ -208,13 +208,13 @@ spawn(function() --i know, i know, open loop bad but i cant use .changed because
     local currentarea
     while wait(0.5) do
         if services.CurrentArea ~= currentarea then
-            mobdropdown:Refresh({},true)
+            mobdropdown:Refresh({})
             for _,mob in pairs(game.Workspace["__WORKSPACE"].Mobs[services.CurrentArea.Name]:GetChildren()) do
                 if not table.find(mobs,mob.Name) then
                     table.insert(mobs,mob.name)
                 end
             end
-            mobdropdown:Refresh(mobs,false)
+            mobdropdown:Refresh(mobs)
             currentarea = services.CurrentArea
         end
     end
